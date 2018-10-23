@@ -4,11 +4,30 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const srcDir = join(__dirname, 'src');
 
+const babelLoader = {
+  loader: 'babel-loader',
+  options: {
+    presets: [
+      '@babel/preset-env',
+    ],
+    plugins: [
+      '@babel/plugin-transform-runtime',
+      'angularjs-annotate',
+    ],
+    cacheDirectory: true,
+  },
+};
+
 module.exports = {
   target: 'web',
   devtool: '(none)',
   mode: 'development',
-  entry: join(srcDir, 'index.ts'),
+  entry: {
+    main: [
+      '@babel/polyfill',
+      join(srcDir, 'index.ts')
+    ]
+  },
   output: {
     path: join(__dirname, 'dist'),
     chunkFilename: '[name].js',
@@ -42,11 +61,15 @@ module.exports = {
         {
           from: '.gitignore',
           to: '.',
-          toType: 'dir',
           cache: true
+        },
+        {
+          from: 'some-files',
+          to: '.',
+          cache: true,
+          flatten: true
         }
-      ],
-      {context: 'src/'}
+      ]
     )
   ],
   resolve: {
@@ -57,7 +80,28 @@ module.exports = {
     rules: [
       {
         test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
-        use: ['@ngtools/webpack']
+        use: [
+          babelLoader,
+          '@ngtools/webpack'
+        ],
+        exclude: /node_modules/
+      },
+      {
+        test: /\.html$/,
+        use: [{
+          loader: 'html-loader',
+          options: {
+            minimize: true,
+            caseSensitive: true,
+            collapseBooleanAttributes: true,
+            removeEmptyAttributes: true
+          }
+        }]
+      },
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: [babelLoader]
       }
     ]
   }

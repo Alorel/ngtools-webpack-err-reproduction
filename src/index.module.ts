@@ -3,7 +3,7 @@ import {BrowserModule} from '@angular/platform-browser';
 
 @Component({
   selector: '<ngx-foo></ngx-foo>',
-  template: '<span>foo</span>'
+  templateUrl: './index.component.html'
 })
 export class IndexComponent {
 
